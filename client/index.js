@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Fragment from 'vue-fragment';
-import ApolloClient from 'apollo-boost';
+import ApolloClient from 'apollo-client';
 import VueApollo from 'vue-apollo';
+import { createUploadLink } from 'apollo-upload-client';
 
 import router from './router/index';
 import App from './app.vue';
@@ -18,7 +19,8 @@ Vue.config.errorHandler = (err) => {
 
 const isDev = process.env.NODE_ENV === 'development';
 const apolloClient = new ApolloClient({
-  uri: isDev ? 'http://localhost:8080/graphql' : '/graphql',
+  link: createUploadLink({ uri: isDev ? 'http://localhost:8080/graphql' : '/graphql' }),
+  cache: new ApolloClient().in,
 });
 
 const apolloProvider = new VueApollo({

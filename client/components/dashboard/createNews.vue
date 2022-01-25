@@ -36,9 +36,10 @@
           <button type="submit" :class="$style['submit-btn']">Create</button>
           <input
             type="file"
-            name="file"
+            name="attachment"
             id="file"
             :class="[$style.control, $style['control-file']]"
+            @change="handleInputFile"
           >
           <label for="file" class="bx bx-paperclip" :class="$style['file-btn']"></label>
         </div>
@@ -48,7 +49,7 @@
 </template>
 
 <script>
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 
 export default {
   name: 'create-news',
@@ -62,28 +63,30 @@ export default {
       subject: '',
       shortDesc: '',
       body: '',
-      file: null,
+      attachment: null,
     },
   }),
   methods: {
+    handleInputFile(event) { this.form.attachment = event.target.files },
     async handleSubmit() {
       try {
         const { form } = this;
 
         const request = await this.$apollo.mutate({
           mutation: gql`
-            mutation ($author: String!, $subject: String!, $shortDesc: String!, $body: String!) {
-              CreateNews (author: $author, subject: $subject, shortDesc: $shortDesc, body: $body) {
+            mutation ($author: String!, $subject: String!, $shortDesc: String!, $body: String!, $attachment: Upload) {
+              CreateNews (author: $author, subject: $subject, shortDesc: $shortDesc, body: $body, attachment: $attachment) {
                 success,
                 message,
               }
             }
           `,
           variables: {
-            author: 'Febriadji',
+            author: this.$store.getters.getEmployee.fullname,
             subject: form.subject,
             shortDesc: form.body.slice(0, 200),
-            body: `<p>${form.body.replace(/\n/g, '</p>\n<p>')}</p>`,
+            body: `${form.body.replace(/\n/g, '\n<br>')}<br>`,
+            attachment: form.attachment[0],
           },
         });
 
@@ -98,6 +101,7 @@ export default {
           file: null,
         }
 
+        this.handleGetAllNews();
         setTimeout(() => this.handleCreateNewsIsOpen(), 1000);
       }
       catch (error0) {

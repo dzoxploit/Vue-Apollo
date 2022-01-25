@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 
 export default {
   name: 'login-form',
@@ -133,7 +133,7 @@ export default {
 
         setTimeout(() => {
           this.handleLoginFormIsOpen();
-        }, 2000);
+        }, 1000);
       }
       catch (error0) {
         this.response = {

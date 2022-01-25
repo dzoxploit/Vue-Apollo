@@ -22,6 +22,11 @@
       :handleLogoutIsOpen="handleLogoutIsOpen"
     >
     </logout>
+    <details-news
+      :details="details"
+      :handleDetailsIsOpen="handleDetailsIsOpen"
+    >
+    </details-news>
     <div :class="$style.plus" v-if="isLoggedIn() && employee().division === 'hr'">
       <div :class="$style['plus-wrap']">
         <button
@@ -39,13 +44,18 @@
         :handleLogoutIsOpen="handleLogoutIsOpen"
       >
       </navbar>
-      <news :news="news"></news>
+      <news
+        :news="news"
+        :handleDetailsIsOpen="handleDetailsIsOpen"
+        :handleGetAllNews="handleGetAllNews"
+      >
+      </news>
     </div>
   </div>
 </template>
 
 <script>
-import { gql } from 'apollo-boost';
+import gql from 'graphql-tag';
 
 import navbar from '../components/navbar.vue';
 import createNews from '../components/dashboard/createNews.vue';
@@ -53,6 +63,7 @@ import news from '../components/dashboard/news.vue';
 import login from '../components/login.vue';
 import register from '../components/register.vue';
 import logout from '../components/logout.vue';
+import details from '../components/dashboard/details.vue';
 
 export default {
   name: 'dashboard-page',
@@ -63,6 +74,7 @@ export default {
     createNews,
     news,
     logout,
+    'details-news': details,
   },
   data: () => ({
     loginFormIsOpen: false,
@@ -70,6 +82,10 @@ export default {
     logoutIsOpen: false,
     createNewsIsOpen: false,
     news: [],
+    details: {
+      isOpen: false,
+      data: null,
+    },
   }),
   methods: {
     isLoggedIn() {
@@ -84,14 +100,24 @@ export default {
       this.registerFormIsOpen = !this.registerFormIsOpen;
     },
     handleCreateNewsIsOpen() { this.createNewsIsOpen = !this.createNewsIsOpen },
+    handleDetailsIsOpen(args) {
+      this.details.isOpen = !this.details.isOpen;
+
+      if (this.details.isOpen) {
+        this.details.data = args;
+      } else {
+        this.details.data = null;
+      }
+    },
     async handleGetAllNews() {
       try {
         const request = await this.$apollo.query({
           query: gql`{
             NewsFindAll {
-              id author subject shortDesc createdAt                
+              id author subject shortDesc closed createdAt                
             }
           }`,
+          fetchPolicy: 'network-only',
         });
 
         this.news = request.data.NewsFindAll;

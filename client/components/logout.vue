@@ -19,14 +19,14 @@ export default {
   },
   methods: {
     handleLogout() {
-      this.$store.dispatch('counter/isLoggedIn', false);
-      this.$store.dispatch('counter/setEmployeeData', null);
-
-      localStorage.removeItem('token');
+      this.handleLogoutIsOpen();
 
       setTimeout(() => {
-        this.handleLogoutIsOpen();
-      }, 2000);
+        this.$store.dispatch('counter/isLoggedIn', false);
+        this.$store.dispatch('counter/setEmployeeData', null);
+
+        localStorage.removeItem('token');
+      }, 500);
     },
   },
 }
